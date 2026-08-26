@@ -150,6 +150,44 @@ with col_desc2:
                            yaxis_title="Pernoctaciones acumuladas")
     st.plotly_chart(fig_orig, use_container_width=True)
 
+st.divider()
+st.subheader("Detección de anomalías · Autoencoder LSTM")
+
+col_err, col_rank = st.columns([3, 2])
+
+with col_err:
+    st.markdown("**Error de reconstrucción mensual**")
+    serie_anom = serie[serie['error'].notna()].sort_values('fecha')
+    if len(serie_anom) > 0:
+        umbral_muni = historico['error'].dropna().quantile(0.95)
+        colores_barras = [CORAL if e > umbral_muni else AZUL for e in serie_anom['error']]
+        fig_err = go.Figure()
+        fig_err.add_trace(go.Bar(x=serie_anom['fecha'], y=serie_anom['error'],
+                                 marker_color=colores_barras, name='Error'))
+        fig_err.add_hline(y=umbral_muni, line_dash="dash", line_color="#666",
+                          annotation_text="Umbral de anomalía")
+        fig_err.update_layout(height=300, margin=dict(l=0, r=0, t=10, b=0),
+                              yaxis_title="Error de reconstrucción")
+        st.plotly_chart(fig_err, use_container_width=True)
+    else:
+        st.info("Este municipio no tiene datos de anomalías (solo se calculan sobre 2025).")
+
+with col_rank:
+    st.markdown("**Municipios más anómalos en 2025**")
+    ranking_anom = (historico[historico['anomalia'] == True]
+                    .groupby('territorio').size()
+                    .sort_values(ascending=False).head(10))
+    if len(ranking_anom) > 0:
+        colores_rank = [CORAL if t == municipio else '#B0B0B0' for t in ranking_anom.index]
+        fig_ra = go.Figure(go.Bar(
+            x=ranking_anom.values, y=ranking_anom.index, orientation='h',
+            marker_color=colores_rank,
+        ))
+        fig_ra.update_layout(height=300, margin=dict(l=0, r=0, t=10, b=0),
+                             xaxis_title="Meses anómalos")
+        fig_ra.update_yaxes(autorange="reversed")
+        st.plotly_chart(fig_ra, use_container_width=True)
+
 if info['tiene_anomalia']:
     st.warning(f"Anomalía detectada por el autoencoder: la presión de {municipio} "
                f"se desvía de su patrón histórico en 2025.", icon="⚠️")
