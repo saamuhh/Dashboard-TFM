@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 
 st.set_page_config(page_title="Presión Turística Canarias", layout="wide")
 
@@ -17,10 +19,16 @@ def cargar_datos():
         proyeccion = pd.read_csv('dashboard_proyeccion_2026.csv', parse_dates=['fecha'])
     except FileNotFoundError:
         proyeccion = None
-    return historico, resumen, proyeccion
+
+    indicadores = ['TIT', 'TDT', 'IPH']
+    escalador = StandardScaler().fit(historico[indicadores])
+    pca = PCA(n_components=1).fit(escalador.transform(historico[indicadores]))
+    pesos_pca = dict(zip(indicadores, pca.components_[0]))
+
+    return historico, resumen, proyeccion, pesos_pca
 
 
-historico, resumen, proyeccion = cargar_datos()
+historico, resumen, proyeccion, PESOS_PCA = cargar_datos()
 
 st.title("Cuadro de mando · Presión turística en Canarias")
 st.caption("Monitorización municipal · datos ISTAC 2021–2025 · proyección 2026")
@@ -163,11 +171,15 @@ with col_cluster:
 st.divider()
 st.subheader("Descomposición de la presión")
 
-col_desc1, col_desc2 = st.columns(2)
+medias_ind = {ind: historico[ind].mean() for ind in PESOS_PCA}
+stds_ind = {ind: historico[ind].std() for ind in PESOS_PCA}
 
-with col_desc1:
+ultimo = serie.iloc[-1] if len(serie) > 0 else historico[historico['territorio'] == municipio].iloc[-1]
+
+col_a, col_b = st.columns(2)
+
+with col_a:
     st.markdown("**Aportación de cada indicador al IPV**")
-    ultimo = serie.iloc[-1]
     contribuciones = {'Intensidad (TIT)': ultimo['TIT'],
                       'Densidad (TDT)': ultimo['TDT'],
                       'Presión humana (IPH)': ultimo['IPH']}
@@ -181,22 +193,80 @@ with col_desc1:
     ))
     fig_desc.add_vline(x=1, line_dash="dash", line_color="#666",
                        annotation_text="Media Canarias")
-    fig_desc.update_layout(height=280, margin=dict(l=0, r=0, t=10, b=0),
+    fig_desc.update_layout(height=260, margin=dict(l=0, r=0, t=10, b=0),
                            xaxis_title="Veces la media de Canarias")
     st.plotly_chart(fig_desc, use_container_width=True)
 
-with col_desc2:
+with col_b:
     st.markdown("**Origen de las pernoctaciones**")
-    serie_o = serie.copy()
-    hotel = serie_o['pernoctaciones'].sum()
-    vv = serie_o['pernoc_vv'].sum()
+    hotel = serie['pernoctaciones'].sum()
+    vv = serie['pernoc_vv'].sum()
     fig_orig = go.Figure(go.Bar(
         x=['Hotelero', 'Vivienda vacacional'], y=[hotel, vv],
         marker_color=[AZUL, CORAL],
     ))
-    fig_orig.update_layout(height=280, margin=dict(l=0, r=0, t=10, b=0),
+    fig_orig.update_layout(height=260, margin=dict(l=0, r=0, t=10, b=0),
                            yaxis_title="Pernoctaciones acumuladas")
     st.plotly_chart(fig_orig, use_container_width=True)
+
+col_c, col_d = st.columns(2)
+
+with col_c:
+    st.markdown("**Composición real del IPV (pesos PCA)**")
+    contrib_pca = {}
+    for ind in PESOS_PCA:
+        z = (ultimo[ind] - medias_ind[ind]) / stds_ind[ind]
+        contrib_pca[ind] = z * PESOS_PCA[ind]
+    total_abs = sum(abs(v) for v in contrib_pca.values()) + 1e-9
+    nombres_ind = {'TIT': 'Intensidad', 'TDT': 'Densidad', 'IPH': 'Presión humana'}
+    fig_pca = go.Figure(go.Bar(
+        x=[contrib_pca[i] for i in PESOS_PCA], y=[nombres_ind[i] for i in PESOS_PCA],
+        orientation='h',
+        marker_color=[CORAL if v > 0 else AZUL for v in contrib_pca.values()],
+        text=[f"{abs(v)/total_abs:.0%}" for v in contrib_pca.values()],
+        textposition='outside',
+    ))
+    fig_pca.add_vline(x=0, line_color="#999")
+    fig_pca.update_layout(height=260, margin=dict(l=0, r=0, t=10, b=0),
+                          xaxis_title="Contribución al IPV")
+    st.plotly_chart(fig_pca, use_container_width=True)
+    st.caption(f"IPV = {ultimo['IPV']:.2f} · suma de las tres contribuciones ponderadas por PCA")
+
+with col_d:
+    st.markdown("**Perfil vs media del cluster**")
+    muni_cluster_ids = resumen[resumen['cluster'] == info['cluster']]['territorio']
+    media_cluster_ind = historico[historico['territorio'].isin(muni_cluster_ids)][list(PESOS_PCA)].mean()
+
+    categorias = ['Intensidad (TIT)', 'Densidad (TDT)', 'Presión humana (IPH)']
+    valores_muni = [(ultimo[i] - historico[i].min()) / (historico[i].max() - historico[i].min() + 1e-9)
+                    for i in PESOS_PCA]
+    valores_cluster = [(media_cluster_ind[i] - historico[i].min()) / (historico[i].max() - historico[i].min() + 1e-9)
+                       for i in PESOS_PCA]
+
+    fig_radar = go.Figure()
+    fig_radar.add_trace(go.Scatterpolar(r=valores_muni + [valores_muni[0]],
+                                        theta=categorias + [categorias[0]],
+                                        fill='toself', name=municipio,
+                                        line=dict(color=CORAL)))
+    fig_radar.add_trace(go.Scatterpolar(r=valores_cluster + [valores_cluster[0]],
+                                        theta=categorias + [categorias[0]],
+                                        fill='toself', name='Media cluster',
+                                        line=dict(color='#999', dash='dot')))
+    fig_radar.update_layout(height=280, margin=dict(l=30, r=30, t=10, b=10),
+                            polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
+                            showlegend=True)
+    st.plotly_chart(fig_radar, use_container_width=True)
+
+st.markdown("**Estacionalidad de la presión**")
+estacional = (historico[historico['territorio'] == municipio]
+             .groupby(historico['fecha'].dt.month)['IPV'].mean())
+MESES_CORTOS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+fig_estac = go.Figure(go.Bar(
+    x=[MESES_CORTOS[m - 1] for m in estacional.index], y=estacional.values,
+    marker_color=AZUL,
+))
+fig_estac.update_layout(height=260, margin=dict(l=0, r=0, t=10, b=0), yaxis_title="IPV medio")
+st.plotly_chart(fig_estac, use_container_width=True)
 
 st.divider()
 st.subheader("Detección de anomalías · Autoencoder LSTM")
