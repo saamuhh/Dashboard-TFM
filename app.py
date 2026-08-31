@@ -1,3 +1,4 @@
+!pip install streamlit
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
@@ -22,16 +23,20 @@ def cargar_datos():
         proyeccion = pd.read_csv('dashboard_proyeccion_2026.csv', parse_dates=['fecha'])
     except FileNotFoundError:
         proyeccion = None
+    try:
+        shap_muni = pd.read_csv('dashboard_shap_municipio.csv')
+    except FileNotFoundError:
+        shap_muni = None
 
     indicadores = ['TIT', 'TDT', 'IPH']
     escalador = StandardScaler().fit(historico[indicadores])
     pca = PCA(n_components=1).fit(escalador.transform(historico[indicadores]))
     pesos_pca = dict(zip(indicadores, pca.components_[0]))
 
-    return historico, resumen, proyeccion, pesos_pca
+    return historico, resumen, proyeccion, pesos_pca, shap_muni
 
 
-historico, resumen, proyeccion, PESOS_PCA = cargar_datos()
+historico, resumen, proyeccion, PESOS_PCA, shap_muni = cargar_datos()
 
 st.title("Cuadro de mando · Presión turística en Canarias")
 st.caption("Monitorización municipal · datos ISTAC 2021–2025 · proyección 2026")
@@ -188,26 +193,39 @@ stds_ind = {ind: historico[ind].std() for ind in PESOS_PCA}
 
 ultimo = serie.iloc[-1] if len(serie) > 0 else historico[historico['territorio'] == municipio].iloc[-1]
 
-col_a, col_b = st.columns(2)
+st.markdown("**Nivel de cada índice**")
+g1, g2, g3 = st.columns(3)
 
-with col_a:
-    st.markdown("**Aportación de cada indicador al IPV**")
-    contribuciones = {'Intensidad (TIT)': ultimo['TIT'],
-                      'Densidad (TDT)': ultimo['TDT'],
-                      'Presión humana (IPH)': ultimo['IPH']}
-    medias_canarias = {'Intensidad (TIT)': historico['TIT'].mean(),
-                       'Densidad (TDT)': historico['TDT'].mean(),
-                       'Presión humana (IPH)': historico['IPH'].mean()}
-    ratios = {k: contribuciones[k] / medias_canarias[k] for k in contribuciones}
-    fig_desc = go.Figure(go.Bar(
-        x=list(ratios.values()), y=list(ratios.keys()), orientation='h',
-        marker_color=[CORAL if v > 1 else AZUL for v in ratios.values()],
-    ))
-    fig_desc.add_vline(x=1, line_dash="dash", line_color="#666",
-                       annotation_text="Media Canarias")
-    fig_desc.update_layout(height=260, margin=dict(l=0, r=0, t=10, b=0),
-                           xaxis_title="Veces la media de Canarias")
-    st.plotly_chart(fig_desc, use_container_width=True)
+GAUGE_CONFIG = {
+    'TIT': ('Intensidad turística', g1),
+    'TDT': ('Densidad turística', g2),
+    'IPH': ('Presión humana', g3),
+}
+
+for ind, (nombre, col) in GAUGE_CONFIG.items():
+    with col:
+        q33 = historico[ind].quantile(0.33)
+        q66 = historico[ind].quantile(0.66)
+        vmax = historico[ind].quantile(0.98)
+        valor = ultimo[ind]
+        fig_g = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=valor,
+            title={'text': nombre, 'font': {'size': 14}},
+            gauge={
+                'axis': {'range': [0, vmax]},
+                'bar': {'color': '#333'},
+                'steps': [
+                    {'range': [0, q33], 'color': VERDE},
+                    {'range': [q33, q66], 'color': '#EF9F27'},
+                    {'range': [q66, vmax], 'color': CORAL},
+                ],
+            },
+        ))
+        fig_g.update_layout(height=220, margin=dict(l=20, r=20, t=40, b=10))
+        st.plotly_chart(fig_g, use_container_width=True)
+
+col_b, col_shap = st.columns(2)
 
 with col_b:
     st.markdown("**Origen de las pernoctaciones**")
@@ -217,34 +235,43 @@ with col_b:
         x=['Hotelero', 'Vivienda vacacional'], y=[hotel, vv],
         marker_color=[AZUL, CORAL],
     ))
-    fig_orig.update_layout(height=260, margin=dict(l=0, r=0, t=10, b=0),
+    fig_orig.update_layout(height=280, margin=dict(l=0, r=0, t=10, b=0),
                            yaxis_title="Pernoctaciones acumuladas")
     st.plotly_chart(fig_orig, use_container_width=True)
 
-col_c, col_d = st.columns(2)
+with col_shap:
+    st.markdown("**Factores que explican la presión (SHAP)**")
+    if shap_muni is not None and municipio in shap_muni['territorio'].values:
+        fila_shap = shap_muni[shap_muni['territorio'] == municipio].iloc[0]
+        factores, valores = [], []
+        for i in [1, 2, 3]:
+            if pd.notna(fila_shap.get(f'factor_{i}_sube')):
+                factores.append(fila_shap[f'factor_{i}_sube'])
+                valores.append(fila_shap[f'factor_{i}_sube_valor'])
+        for i in [1, 2, 3]:
+            if pd.notna(fila_shap.get(f'factor_{i}_baja')):
+                factores.append(fila_shap[f'factor_{i}_baja'])
+                valores.append(fila_shap[f'factor_{i}_baja_valor'])
 
-with col_c:
-    st.markdown("**Composición real del IPV (pesos PCA)**")
-    contrib_pca = {}
-    for ind in PESOS_PCA:
-        z = (ultimo[ind] - medias_ind[ind]) / stds_ind[ind]
-        contrib_pca[ind] = z * PESOS_PCA[ind]
-    total_abs = sum(abs(v) for v in contrib_pca.values()) + 1e-9
-    nombres_ind = {'TIT': 'Intensidad', 'TDT': 'Densidad', 'IPH': 'Presión humana'}
-    fig_pca = go.Figure(go.Bar(
-        x=[contrib_pca[i] for i in PESOS_PCA], y=[nombres_ind[i] for i in PESOS_PCA],
-        orientation='h',
-        marker_color=[CORAL if v > 0 else AZUL for v in contrib_pca.values()],
-        text=[f"{abs(v)/total_abs:.0%}" for v in contrib_pca.values()],
-        textposition='outside',
-    ))
-    fig_pca.add_vline(x=0, line_color="#999")
-    fig_pca.update_layout(height=260, margin=dict(l=0, r=0, t=10, b=0),
-                          xaxis_title="Contribución al IPV")
-    st.plotly_chart(fig_pca, use_container_width=True)
-    st.caption(f"IPV = {ultimo['IPV']:.2f} · suma de las tres contribuciones ponderadas por PCA")
+        orden = sorted(zip(factores, valores), key=lambda x: x[1])
+        factores_o = [f for f, _ in orden]
+        valores_o = [v for _, v in orden]
 
-with col_d:
+        fig_shap = go.Figure(go.Bar(
+            x=valores_o, y=factores_o, orientation='h',
+            marker_color=[CORAL if v > 0 else AZUL for v in valores_o],
+        ))
+        fig_shap.add_vline(x=0, line_color="#999")
+        fig_shap.update_layout(height=280, margin=dict(l=0, r=0, t=10, b=0),
+                               xaxis_title="Impacto en la predicción del TIT")
+        st.plotly_chart(fig_shap, use_container_width=True)
+        st.caption("Rojo: empuja la presión al alza · Azul: la modera")
+    else:
+        st.info("Sin datos SHAP disponibles para este municipio.")
+
+col_radar, col_estac = st.columns(2)
+
+with col_radar:
     st.markdown("**Perfil vs media del cluster**")
     muni_cluster_ids = resumen[resumen['cluster'] == info['cluster']]['territorio']
     media_cluster_ind = historico[historico['territorio'].isin(muni_cluster_ids)][list(PESOS_PCA)].mean()
@@ -264,20 +291,25 @@ with col_d:
                                         theta=categorias + [categorias[0]],
                                         fill='toself', name='Media cluster',
                                         line=dict(color='#999', dash='dot')))
-    fig_radar.update_layout(height=280, margin=dict(l=30, r=30, t=10, b=10),
+    fig_radar.update_layout(height=300, margin=dict(l=30, r=30, t=10, b=10),
                             polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
                             showlegend=True)
     st.plotly_chart(fig_radar, use_container_width=True)
 
-st.markdown("**Estacionalidad de la presión**")
-estacional = (historico[historico['territorio'] == municipio]
-             .groupby(historico['fecha'].dt.month)['IPV'].mean())
-fig_estac = go.Figure(go.Bar(
-    x=[MESES_CORTOS[m - 1] for m in estacional.index], y=estacional.values,
-    marker_color=AZUL,
-))
-fig_estac.update_layout(height=260, margin=dict(l=0, r=0, t=10, b=0), yaxis_title="IPV medio")
-st.plotly_chart(fig_estac, use_container_width=True)
+with col_estac:
+    st.markdown("**Estacionalidad de la presión**")
+    estacional = (historico[historico['territorio'] == municipio]
+                 .groupby(historico['fecha'].dt.month)['IPV'].mean())
+    angulos = [m * 30 for m in estacional.index]
+    fig_estac = go.Figure(go.Barpolar(
+        r=estacional.values,
+        theta=[MESES_CORTOS[m - 1] for m in estacional.index],
+        marker_color=estacional.values,
+        marker_colorscale=[[0, VERDE], [0.5, '#EF9F27'], [1, CORAL]],
+    ))
+    fig_estac.update_layout(height=300, margin=dict(l=30, r=30, t=10, b=10),
+                            polar=dict(radialaxis=dict(showticklabels=False)))
+    st.plotly_chart(fig_estac, use_container_width=True)
 
 # ══════════════════════════════════════════════════════════════
 # DETECCIÓN DE ANOMALÍAS (AUTOENCODER LSTM)
