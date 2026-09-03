@@ -26,16 +26,24 @@ def cargar_datos():
         shap_muni = pd.read_csv('dashboard_shap_municipio.csv')
     except FileNotFoundError:
         shap_muni = None
+    try:
+        resumenes = pd.read_csv('resumenes_municipios.csv')
+    except FileNotFoundError:
+        resumenes = None
+    try:
+        enriquecido = pd.read_csv('datos_municipio_enriquecido.csv')
+    except FileNotFoundError:
+        enriquecido = None
 
     indicadores = ['TIT', 'TDT', 'IPH']
     escalador = StandardScaler().fit(historico[indicadores])
     pca = PCA(n_components=1).fit(escalador.transform(historico[indicadores]))
     pesos_pca = dict(zip(indicadores, pca.components_[0]))
 
-    return historico, resumen, proyeccion, pesos_pca, shap_muni
+    return historico, resumen, proyeccion, pesos_pca, shap_muni, resumenes, enriquecido
 
 
-historico, resumen, proyeccion, PESOS_PCA, shap_muni = cargar_datos()
+historico, resumen, proyeccion, PESOS_PCA, shap_muni, resumenes, enriquecido = cargar_datos()
 
 st.title("Cuadro de mando · Presión turística en Canarias")
 st.caption("Monitorización municipal · datos ISTAC 2021–2025 · proyección 2026")
@@ -51,6 +59,33 @@ info = resumen[resumen['territorio'] == municipio].iloc[0]
 serie = historico[(historico['territorio'] == municipio) &
                   (historico['fecha'].dt.year >= rango[0]) &
                   (historico['fecha'].dt.year <= rango[1])].sort_values('fecha')
+
+tono_municipio = None
+if enriquecido is not None and municipio in enriquecido['territorio'].values:
+    fila_enr = enriquecido[enriquecido['territorio'] == municipio].iloc[0]
+    tono_municipio = fila_enr.get('tono', None)
+
+# ══════════════════════════════════════════════════════════════
+# RESUMEN GENERADO POR IA (mT5 fine-tuneado)
+# ══════════════════════════════════════════════════════════════
+
+if resumenes is not None and municipio in resumenes['territorio'].values:
+    import time
+    texto_resumen = resumenes[resumenes['territorio'] == municipio]['resumen_llm'].iloc[0]
+
+    with st.container(border=True):
+        st.markdown("🧠 **Análisis del municipio** · generado por un modelo de lenguaje (mT5 fine-tuneado)")
+
+        if st.session_state.get('ultimo_municipio') != municipio:
+            st.session_state['ultimo_municipio'] = municipio
+
+            def stream_texto():
+                for palabra in texto_resumen.split(' '):
+                    yield palabra + ' '
+                    time.sleep(0.03)
+            st.write_stream(stream_texto)
+        else:
+            st.write(texto_resumen)
 
 # ══════════════════════════════════════════════════════════════
 # TARJETAS DE ESTADO
@@ -109,7 +144,7 @@ else:
         c.caption("Sin proyección")
 
 with f2c5:
-    tono = info.get('tono', None)
+    tono = tono_municipio if tono_municipio is not None else info.get('tono', None)
     if pd.notna(tono):
         color_t = {'crítico': '#E24B4A', 'neutro': '#888', 'positivo': '#639922'}.get(tono, '#888')
         st.markdown(f"<p style='color:#888;font-size:13px;margin:0'>Tono mediático</p>"
