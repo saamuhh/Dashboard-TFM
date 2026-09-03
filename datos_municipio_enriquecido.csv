@@ -1,0 +1,89 @@
+territorio,IPV_actual,TIT_actual,TDT_actual,IPH_actual,alerta,cluster,poblacion,densidad,superficie,envejecimiento,IPV_pred,tendencia,tiene_anomalia,ingresos_nivel,ingresos_tendencia,peso_hotelero,mes_pico,poblacion_tendencia,perfil_jovenes,perfil_mayores,n_noticias,cobertura,tono
+Adeje,3.608041128945055,2328.4161,231.3484,88626.77,Alta,0.0,50612,477.69,105.9522,105.5,3.570873679677278,baja,False,altos,creciente,alto,agosto,estable,bajo,bajo,32,alta,neutro
+Agaete,-0.318522020935139,402.0185,32.4316,6451.62,Media,2.0,5711,128.3,44.5116,246.22,-0.2950553292946887,sube,False,medios,creciente,alto,noviembre,estable,bajo,alto,24,alta,neutro
+Agulo,-0.7586006734544581,180.1279,7.2543,1142.75,Baja,2.0,1080,43.19,25.0041,532.35,-0.7527712307520451,sube,False,bajos,creciente,alto,marzo,estable,bajo,alto,15,alta,neutro
+Agüimes,-0.4858224650781018,67.389,15.8381,34611.39,Media,2.0,33875,429.36,78.8972,111.94,-0.4742310677057701,sube,False,medios,creciente,alto,noviembre,estable,bajo,bajo,13,moderada,neutro
+Alajeró,-0.578303710968284,424.9393,6.8435,2375.35,Baja,2.0,2089,42.11,49.6068,289.16,-0.5593504479147533,sube,False,bajos,creciente,alto,agosto,estable,bajo,alto,9,moderada,positivo
+Antigua,0.7795403322516328,1883.7191,23.2867,22550.53,Alta,0.0,14027,56.05,250.2476,176.65,0.8743738373088977,sube,False,altos,creciente,alto,agosto,estable,bajo,alto,38,alta,positivo
+Arafo,-0.1872650457761011,802.8194,15.2852,7550.07,Media,2.0,5997,174.53,34.3618,163.29,-0.0457980747536108,sube,False,bajos,creciente,alto,noviembre,estable,bajo,alto,5,moderada,neutro
+Arico,-0.2995603596627401,603.919,15.1074,11362.67,Media,2.0,9510,53.15,178.9342,166.54,-0.2232147957359581,sube,False,altos,creciente,alto,noviembre,estable,bajo,alto,7,moderada,neutro
+Arona,3.2244585874035665,985.1664,267.0839,117331.25,Alta,0.0,89036,1091.15,81.5985,128.52,3.290316236296936,sube,False,altos,creciente,alto,diciembre,estable,bajo,bajo,25,alta,neutro
+Arrecife,0.4252362360385772,41.4906,82.4504,71205.43,Alta,2.0,70265,2894.49,24.2754,94.75,0.4199495156989282,baja,False,altos,creciente,alto,diciembre,estable,bajo,bajo,38,alta,positivo
+Artenara,0.4004754731445418,1832.8123,5.0525,1634.19,Alta,2.0,1027,15.46,66.419,414.86,0.5169435271574605,sube,False,bajos,estable,alto,noviembre,estable,bajo,alto,14,moderada,positivo
+Arucas,-0.3546745302705932,52.6764,26.2672,39858.98,Media,2.0,39193,1193.5,32.8387,157.36,-0.3386653886876082,sube,False,medios,decreciente,alto,diciembre,estable,bajo,bajo,14,moderada,neutro
+Barlovento,-0.8666377043085096,76.8666,2.7256,2184.86,Baja,2.0,2132,49.02,43.4952,275.61,-0.8498196415844246,sube,False,bajos,estable,alto,agosto,estable,bajo,alto,18,alta,neutro
+Betancuria,-0.9100286320200074,51.4989,1.2246,818.37,Baja,2.0,805,7.76,103.7087,168.32,-0.9093118922517645,sube,False,bajos,decreciente,bajo,noviembre,estable,bajo,alto,11,moderada,positivo
+Breña Alta,-0.7717411277352356,33.0664,11.4118,7555.74,Baja,2.0,7476,241.99,30.8934,187.0,-0.7491484103317755,sube,False,bajos,estable,alto,agosto,estable,bajo,alto,8,moderada,neutro
+Breña Baja,0.2217666836859643,868.1164,53.1779,7879.91,Alta,2.0,6156,434.78,14.1588,160.4,0.2261922011717337,sube,False,medios,creciente,alto,agosto,estable,bajo,alto,7,moderada,neutro
+Buenavista del Norte,-0.0927270137357772,1025.1378,9.6622,6286.18,Media,2.0,4724,71.18,66.3641,300.48,0.0444971156884624,sube,False,medios,estable,alto,noviembre,estable,bajo,alto,12,moderada,neutro
+Candelaria,-0.2189557632542296,184.2706,38.2823,30978.09,Media,2.0,29240,590.94,49.4805,158.45,-0.1934150793134325,sube,False,altos,creciente,alto,diciembre,estable,bajo,alto,53,alta,positivo
+El Paso,-0.7906685482413559,69.1756,5.9277,8476.01,Baja,2.0,8291,60.99,135.9397,200.68,-0.7762559293426017,sube,False,medios,estable,equilibrado,agosto,estable,bajo,alto,27,alta,positivo
+El Pinar de El Hierro,-0.8184699940962434,117.9667,4.7753,2117.63,Baja,2.0,2040,24.66,82.7368,293.6,-0.8048245632152733,sube,False,bajos,creciente,equilibrado,agosto,estable,bajo,alto,3,moderada,neutro
+El Rosario,-0.2289953356586222,290.2901,38.9002,19716.18,Media,2.0,18028,458.59,39.3115,153.01,-0.1846606630201405,sube,False,altos,creciente,alto,noviembre,estable,bajo,bajo,39,alta,positivo
+El Sauzal,-0.0699682677421931,526.3792,45.4492,10942.31,Alta,2.0,9354,513.92,18.2011,171.83,0.0475190746483877,sube,False,medios,decreciente,alto,noviembre,estable,bajo,alto,15,alta,positivo
+El Tanque,0.5033145952664182,1715.4146,22.3503,4357.17,Alta,0.0,2805,115.83,24.2156,176.19,0.788433170629403,sube,False,bajos,decreciente,alto,noviembre,estable,bajo,alto,18,alta,neutro
+Fasnia,0.299531365841681,1539.9743,13.729,4719.3,Alta,2.0,3153,69.68,45.2491,248.31,0.5343945202117966,sube,False,bajos,creciente,alto,noviembre,estable,bajo,alto,5,moderada,neutro
+Firgas,-0.4834670815621134,245.1327,25.18,8370.39,Media,2.0,7757,483.97,16.0278,191.61,-0.4357051617609156,sube,False,bajos,decreciente,alto,noviembre,estable,bajo,alto,11,moderada,neutro
+Frontera,-0.7862926656914638,103.0201,6.9901,4802.46,Baja,2.0,4648,57.17,81.2951,195.32,-0.7716013113849222,sube,False,medios,creciente,alto,agosto,estable,bajo,alto,51,alta,positivo
+Fuencaliente de La Palma,-0.0249786219443515,1183.8327,7.9554,2715.4,Alta,2.0,1965,35.15,55.9002,224.24,0.0090478389247807,sube,True,bajos,creciente,alto,agosto,estable,bajo,alto,8,moderada,neutro
+Garachico,0.1688289289551886,1008.6098,38.2153,6548.59,Alta,2.0,4941,170.23,29.0257,264.46,0.297255750113984,sube,False,medios,creciente,alto,noviembre,estable,bajo,alto,13,moderada,positivo
+Garafía,-0.860459918585193,97.3694,1.9257,2084.48,Baja,2.0,2021,19.7,102.5838,287.18,-0.8332554944228522,sube,False,bajos,estable,alto,agosto,estable,bajo,alto,5,moderada,neutro
+Granadilla de Abona,-0.1231145696906277,64.8021,32.2293,60361.96,Media,2.0,59126,363.84,162.5038,93.8,-0.133893034610636,baja,False,altos,creciente,equilibrado,diciembre,estable,bajo,bajo,13,moderada,positivo
+Guía de Isora,-0.2529892567763531,418.3758,21.4715,25929.29,Media,2.0,22846,158.54,144.1024,134.0,-0.2420183305502271,sube,False,altos,estable,alto,octubre,estable,bajo,bajo,16,alta,positivo
+Gáldar,-0.5254427924589852,85.2338,17.8044,25858.96,Media,2.0,25167,402.38,62.5451,198.02,-0.5003824679575393,sube,False,medios,creciente,alto,noviembre,estable,bajo,alto,20,alta,positivo
+Güímar,-0.4853119932945839,233.6213,12.783,23668.71,Media,2.0,22010,213.92,102.8883,155.94,-0.44687289718919,sube,False,medios,creciente,alto,noviembre,estable,bajo,alto,3,moderada,neutro
+Haría,-0.625590130921848,152.4939,19.2425,5927.93,Baja,2.0,5650,52.99,106.6288,209.15,-0.6312365084347172,baja,False,altos,creciente,bajo,diciembre,estable,bajo,alto,20,alta,positivo
+Hermigua,-0.7167990266801031,155.92,12.6763,2071.19,Baja,2.0,1972,50.36,39.1587,391.67,-0.7195274064515809,baja,False,medios,estable,equilibrado,noviembre,estable,bajo,alto,5,moderada,positivo
+Icod de los Vinos,-0.3899690988275175,216.8446,21.745,26401.01,Media,2.0,24675,257.19,95.9403,204.04,-0.3721891615170416,sube,False,altos,creciente,alto,noviembre,estable,bajo,alto,16,alta,positivo
+Ingenio,-0.4802207114719071,61.494,17.8208,33497.56,Media,2.0,32846,840.31,39.0881,128.01,-0.4579002594470285,sube,False,medios,decreciente,alto,noviembre,estable,bajo,bajo,26,alta,positivo
+La Aldea de San Nicolás,-0.6545553245237883,271.1582,5.4692,8074.47,Baja,2.0,7425,60.02,123.7077,216.86,-0.618639540771933,sube,False,bajos,decreciente,alto,noviembre,estable,bajo,alto,23,alta,neutro
+La Guancha,-0.0889812317676999,848.5374,22.484,7227.1,Media,2.0,5674,238.36,23.8047,201.84,0.0524247646862446,sube,False,bajos,creciente,alto,noviembre,estable,bajo,alto,9,moderada,positivo
+La Matanza de Acentejo,0.1758752979826938,547.8917,69.9058,10727.16,Alta,2.0,9116,648.79,14.0507,144.13,0.2650806728854165,sube,False,medios,creciente,alto,noviembre,estable,bajo,bajo,8,moderada,positivo
+La Oliva,0.5382859423176618,1045.0189,45.8775,39931.24,Alta,2.0,29864,84.04,355.3343,106.43,0.6976796759806824,sube,False,altos,creciente,alto,agosto,estable,bajo,bajo,31,alta,positivo
+La Orotava,-0.4340134982661445,123.8505,8.7256,44373.7,Media,2.0,42669,206.24,206.8874,165.77,-0.4159266363521056,sube,False,altos,creciente,alto,noviembre,estable,bajo,alto,29,alta,positivo
+La Victoria de Acentejo,-0.2680539027397697,507.6934,25.9437,10999.97,Media,2.0,9452,522.61,18.0863,162.93,-0.1752597126755439,sube,False,bajos,estable,alto,noviembre,estable,bajo,alto,8,moderada,neutro
+Las Palmas de Gran Canaria,3.224968931890235,51.9643,103.7938,390460.25,Alta,1.0,384023,3716.98,103.3159,203.23,3.2013094877064145,baja,False,altos,creciente,alto,diciembre,estable,bajo,alto,47,alta,positivo
+Los Llanos de Aridane,-0.238540348014559,152.9353,46.5076,21681.34,Media,2.0,20662,580.32,35.6043,170.99,-0.2606373594506445,baja,False,medios,creciente,alto,diciembre,estable,bajo,alto,27,alta,crítico
+Los Realejos,-0.30423125421878,134.6693,25.4697,39818.78,Media,2.0,38161,675.8,56.4681,172.96,-0.2828455127250795,sube,False,medios,estable,alto,noviembre,estable,bajo,alto,19,alta,neutro
+Los Silos,0.0916336303623287,1024.2497,29.0967,6336.71,Alta,2.0,4763,194.04,24.5466,257.17,0.2279284163522102,sube,False,bajos,creciente,alto,noviembre,estable,bajo,alto,20,alta,neutro
+Mogán,2.501733310212759,3506.6608,63.3263,45613.66,Alta,0.0,21403,124.86,171.4204,149.55,2.371838749080898,baja,True,altos,creciente,alto,diciembre,estable,bajo,bajo,38,alta,positivo
+Moya,-0.4940149048460837,253.7065,23.1824,8656.89,Media,2.0,8002,248.47,32.2046,215.38,-0.4653630565627204,sube,False,medios,estable,alto,noviembre,estable,bajo,alto,24,alta,positivo
+Puerto de la Cruz,7.609870436658039,1499.1256,750.4928,46865.09,Alta,0.0,31589,3579.13,8.8259,309.22,7.754976042038389,sube,True,altos,creciente,alto,agosto,estable,bajo,alto,47,alta,positivo
+Puerto del Rosario,-0.5397060408836369,12.1738,4.265,46363.36,Media,2.0,46182,158.83,290.7712,85.32,-0.5240318795762323,sube,False,medios,creciente,bajo,diciembre,estable,bajo,bajo,41,alta,positivo
+Puntagorda,-0.7314517671061233,135.8176,12.3207,2444.61,Baja,2.0,2342,76.02,30.8058,216.53,-0.7083727262596288,sube,False,medios,decreciente,equilibrado,agosto,estable,bajo,alto,7,moderada,neutro
+Puntallana,-0.8130105475933087,77.4631,7.7474,2863.82,Baja,2.0,2794,79.71,35.0504,210.42,-0.7979969151921443,sube,False,bajos,creciente,alto,agosto,estable,bajo,alto,0,escasa,neutro
+Pájara,2.0515461588331863,3461.4345,19.851,44986.04,Alta,0.0,21254,55.21,384.9378,77.8,2.162266515988477,sube,True,altos,creciente,alto,agosto,estable,bajo,bajo,17,alta,positivo
+San Andrés y Sauces,-0.8696189412708024,39.3674,3.3249,4405.24,Baja,2.0,4350,101.46,42.8729,328.39,-0.8550365186666966,sube,False,bajos,creciente,alto,agosto,estable,bajo,alto,16,alta,neutro
+San Bartolomé,-0.4562408571242359,27.1341,34.5182,19916.82,Media,2.0,19744,484.38,40.7611,111.12,-0.4652523612073483,baja,False,altos,creciente,bajo,diciembre,estable,bajo,bajo,36,alta,positivo
+San Bartolomé de Tirajana,2.595466055448468,2891.417,67.5862,106154.38,Alta,0.0,54925,165.23,332.4191,185.69,2.6850679420358703,sube,True,altos,creciente,alto,agosto,estable,bajo,alto,40,alta,positivo
+San Cristóbal de La Laguna,0.5653043194430303,12.1129,21.3799,162559.71,Alta,1.0,161927,1580.51,102.4522,181.38,0.5850809521765715,sube,False,altos,creciente,alto,septiembre,estable,bajo,alto,42,alta,positivo
+San Juan de la Rambla,0.0361928280352906,964.6086,27.5283,6570.24,Alta,2.0,5011,243.19,20.6052,182.96,0.2079602768053698,sube,False,bajos,creciente,alto,noviembre,estable,bajo,alto,14,moderada,neutro
+San Miguel de Abona,0.7720406054911787,515.0454,120.0897,28345.45,Alta,2.0,24307,578.23,42.0366,100.35,0.7016747104312813,baja,False,altos,creciente,alto,agosto,estable,bajo,bajo,19,alta,neutro
+San Sebastián de La Gomera,-0.6171867553109143,287.6236,6.0459,10561.74,Baja,2.0,9665,85.43,113.1344,178.26,-0.5885070007476085,sube,False,medios,estable,alto,diciembre,estable,bajo,alto,22,alta,neutro
+Santa Brígida,-0.4339837837808194,108.5903,31.1591,19448.2,Media,2.0,18790,788.44,23.8319,209.01,-0.4100136008271285,sube,False,medios,decreciente,alto,noviembre,estable,bajo,alto,18,alta,positivo
+Santa Cruz de La Palma,-0.6276296631623691,42.9715,18.6472,15981.5,Baja,2.0,15763,363.1,43.4121,255.74,-0.621836294335989,sube,False,medios,creciente,alto,diciembre,estable,bajo,alto,27,alta,positivo
+Santa Cruz de Tenerife,1.0711395355954942,31.731,29.5254,213662.85,Alta,1.0,211498,1405.86,150.4401,203.34,1.0853460172980285,sube,False,altos,creciente,alto,diciembre,estable,bajo,alto,31,alta,positivo
+Santa Lucía de Tirajana,-0.1298029976150201,27.2365,17.3934,80204.54,Media,2.0,79506,1271.52,62.5283,98.61,-0.1173553703306139,sube,False,medios,estable,alto,diciembre,estable,bajo,bajo,15,alta,positivo
+Santa María de Guía de Gran Canaria,-0.6050777397545019,138.7854,14.7022,14975.73,Baja,2.0,14334,336.34,42.6182,217.6,-0.5890643069571158,sube,False,bajos,creciente,alto,noviembre,estable,bajo,alto,0,escasa,neutro
+Santa Úrsula,-0.1167780521027018,328.2859,50.1149,17086.13,Media,2.0,15450,690.56,22.3731,145.86,-0.0445958904370424,sube,False,altos,decreciente,alto,noviembre,estable,bajo,bajo,11,moderada,neutro
+Santiago del Teide,1.1122432944256633,1433.1204,95.5291,18506.83,Alta,0.0,12656,242.87,52.1108,147.06,1.1283630124883064,sube,False,altos,creciente,alto,octubre,estable,bajo,alto,6,moderada,neutro
+Tacoronte,-0.089718674063849,210.2364,53.8807,26368.7,Media,2.0,24694,823.23,29.9964,160.41,-0.0705068512305338,sube,False,medios,creciente,alto,noviembre,estable,bajo,alto,7,moderada,neutro
+Tazacorte,-0.3342989670244412,150.8403,51.0453,4746.23,Media,2.0,4526,375.98,12.038,288.8,-0.3562002794248073,baja,False,bajos,creciente,alto,noviembre,estable,bajo,alto,10,moderada,neutro
+Tegueste,-0.3707952842455186,417.4393,20.1259,13063.32,Media,2.0,11513,435.36,26.4448,176.4,-0.2668032282703572,sube,False,bajos,creciente,alto,noviembre,estable,bajo,alto,8,moderada,neutro
+Teguise,0.5835512413876179,1375.0261,30.5,34567.41,Alta,2.0,23946,91.04,263.0301,129.79,0.7021625500449228,sube,False,altos,creciente,alto,agosto,estable,bajo,bajo,34,alta,positivo
+Tejeda,-0.1183045192572741,1075.4988,6.4757,2446.03,Media,2.0,1816,17.48,103.8629,521.43,-0.0225142209157372,sube,False,medios,creciente,alto,noviembre,estable,bajo,alto,16,alta,positivo
+Telde,0.105840692396729,23.7731,20.6575,105737.7,Alta,2.0,104933,1045.87,100.3308,151.96,0.113077494856213,sube,False,altos,creciente,alto,diciembre,estable,bajo,bajo,20,alta,positivo
+Teror,-0.5377197519402213,147.154,22.1093,13872.68,Media,2.0,13244,513.19,25.8073,180.01,-0.5211375961572116,sube,False,bajos,creciente,alto,noviembre,estable,bajo,alto,28,alta,positivo
+Tijarafe,-0.5816196097909552,238.4904,19.992,2927.1,Baja,2.0,2718,50.76,53.5489,321.05,-0.5737793050939671,sube,False,medios,estable,bajo,agosto,estable,bajo,alto,12,moderada,neutro
+Tinajo,-0.7986874452071654,53.8021,7.4754,7023.82,Baja,2.0,6904,50.85,135.779,107.06,-0.7929943983843756,sube,False,altos,creciente,bajo,agosto,estable,bajo,bajo,10,moderada,positivo
+Tuineje,-0.54522316616544,293.8454,6.3307,18554.48,Media,2.0,16948,61.34,276.2976,99.22,-0.549446325501347,baja,False,altos,creciente,alto,julio,estable,bajo,bajo,12,moderada,positivo
+Tías,3.052602821837872,2816.2798,176.6843,41358.61,Alta,0.0,21671,336.92,64.3205,150.73,3.146872652287985,sube,True,altos,creciente,alto,agosto,estable,bajo,bajo,4,moderada,neutro
+Valle Gran Rey,0.0323282022025357,811.8989,38.9953,6063.44,Alta,2.0,4805,149.19,32.2082,318.18,0.005165567258404,baja,False,medios,creciente,alto,diciembre,estable,bajo,alto,17,alta,neutro
+Vallehermoso,-0.8410171299704889,79.9236,4.4766,3025.03,Baja,2.0,2949,27.17,108.5424,561.27,-0.841757001569606,baja,False,bajos,creciente,bajo,diciembre,estable,bajo,alto,8,moderada,neutro
+Valleseco,-0.4216256834826661,500.7128,15.933,4401.0,Media,2.0,3789,171.22,22.1289,306.96,-0.3604420168286836,sube,False,bajos,creciente,alto,noviembre,estable,bajo,alto,8,moderada,neutro
+Valsequillo de Gran Canaria,-0.6113332663014444,197.9215,13.3908,10552.29,Baja,2.0,9919,255.64,38.8013,137.25,-0.5928627230456367,sube,False,bajos,estable,alto,noviembre,estable,bajo,bajo,4,moderada,neutro
+Valverde,-0.7813025913023104,97.7499,7.3383,5472.28,Baja,2.0,5305,51.16,103.6846,217.33,-0.7683857648731818,sube,False,medios,estable,alto,agosto,estable,bajo,alto,24,alta,positivo
+Vega de San Mateo,-0.5193450942072615,253.6567,20.6098,8550.74,Media,2.0,7904,206.84,38.2139,216.44,-0.4892639795132714,sube,False,medios,creciente,alto,noviembre,estable,bajo,alto,14,moderada,positivo
+Vilaflor de Chasna,0.9100940848084084,2476.7944,8.8896,3475.6,Alta,0.0,1932,34.33,56.2711,220.83,1.3520513662468594,sube,True,bajos,creciente,alto,noviembre,estable,bajo,alto,8,moderada,positivo
+Villa de Mazo,-0.829267155804019,53.2313,5.8658,5188.59,Baja,2.0,5101,72.18,70.672,207.02,-0.8178757933548035,sube,False,bajos,estable,equilibrado,agosto,estable,bajo,alto,11,moderada,positivo
+Yaiza,1.9400839181428005,2773.3414,67.8323,35425.72,Alta,0.0,18698,88.16,212.0938,89.69,2.0927635778601084,sube,True,altos,creciente,alto,agosto,estable,bajo,bajo,18,alta,positivo
