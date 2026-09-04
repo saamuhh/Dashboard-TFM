@@ -34,16 +34,20 @@ def cargar_datos():
         enriquecido = pd.read_csv('datos_municipio_enriquecido.csv')
     except FileNotFoundError:
         enriquecido = None
+    try:
+        impacto_anom = pd.read_csv('dashboard_impacto_anomalias.csv')
+    except FileNotFoundError:
+        impacto_anom = None
 
     indicadores = ['TIT', 'TDT', 'IPH']
     escalador = StandardScaler().fit(historico[indicadores])
     pca = PCA(n_components=1).fit(escalador.transform(historico[indicadores]))
     pesos_pca = dict(zip(indicadores, pca.components_[0]))
 
-    return historico, resumen, proyeccion, pesos_pca, shap_muni, resumenes, enriquecido
+    return historico, resumen, proyeccion, pesos_pca, shap_muni, resumenes, enriquecido, impacto_anom
 
 
-historico, resumen, proyeccion, PESOS_PCA, shap_muni, resumenes, enriquecido = cargar_datos()
+historico, resumen, proyeccion, PESOS_PCA, shap_muni, resumenes, enriquecido, impacto_anom = cargar_datos()
 
 st.title("Cuadro de mando · Presión turística en Canarias")
 st.caption("Monitorización municipal · datos ISTAC 2021–2025 · proyección 2026")
@@ -352,42 +356,81 @@ with col_estac:
 st.divider()
 st.subheader("Detección de anomalías · Autoencoder LSTM")
 
-col_err, col_rank = st.columns([3, 2])
+if 'error' in historico.columns and historico['error'].notna().any():
+    umbral = historico['error'].dropna().quantile(0.95)
+    umbral_grave = umbral * 1.5
 
-with col_err:
-    st.markdown("**Error de reconstrucción mensual**")
-    serie_anom = serie[serie['error'].notna()].sort_values('fecha') if 'error' in serie.columns else pd.DataFrame()
-    if len(serie_anom) > 0:
-        umbral_muni = historico['error'].dropna().quantile(0.95)
-        colores_barras = [CORAL if e > umbral_muni else AZUL for e in serie_anom['error']]
-        fig_err = go.Figure()
-        fig_err.add_trace(go.Bar(x=serie_anom['fecha'], y=serie_anom['error'],
-                                 marker_color=colores_barras, name='Error'))
-        fig_err.add_hline(y=umbral_muni, line_dash="dash", line_color="#666",
-                          annotation_text="Umbral de anomalía")
-        fig_err.update_layout(height=300, margin=dict(l=0, r=0, t=10, b=0),
-                              yaxis_title="Error de reconstrucción")
-        st.plotly_chart(fig_err, use_container_width=True)
+    anom_2025 = historico[historico['error'].notna()].copy()
+    anom_2025['mes'] = anom_2025['fecha'].dt.month
+
+    def gravedad(e):
+        if e >= umbral_grave:
+            return 2
+        if e >= umbral:
+            return 1
+        return 0
+
+    anom_2025['gravedad'] = anom_2025['error'].apply(gravedad)
+
+    municipios_anomalos = (anom_2025[anom_2025['gravedad'] > 0]
+                           .groupby('territorio')['gravedad'].sum()
+                           .sort_values(ascending=False).head(10).index.tolist())
+
+    if municipio not in municipios_anomalos and municipio in anom_2025['territorio'].values:
+        if anom_2025[(anom_2025['territorio'] == municipio) & (anom_2025['gravedad'] > 0)].shape[0] > 0:
+            municipios_anomalos = municipios_anomalos[:9] + [municipio]
+
+    st.markdown("**Mapa de gravedad de anomalías en 2025** (meses × municipios más anómalos)")
+    MESES_CORTOS_12 = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+    matriz = []
+    for terr in municipios_anomalos:
+        fila_terr = []
+        for m in range(1, 13):
+            reg = anom_2025[(anom_2025['territorio'] == terr) & (anom_2025['mes'] == m)]
+            fila_terr.append(reg['gravedad'].iloc[0] if len(reg) > 0 else 0)
+        matriz.append(fila_terr)
+
+    fig_heat = go.Figure(go.Heatmap(
+        z=matriz, x=MESES_CORTOS_12, y=municipios_anomalos,
+        colorscale=[[0, '#EAF3EA'], [0.5, '#EF9F27'], [1, CORAL]],
+        showscale=True,
+        colorbar=dict(title="Gravedad", tickvals=[0, 1, 2],
+                      ticktext=['Normal', 'Leve', 'Grave']),
+        zmin=0, zmax=2,
+    ))
+    fig_heat.update_layout(height=380, margin=dict(l=0, r=0, t=10, b=0))
+    fig_heat.update_yaxes(autorange="reversed")
+    st.plotly_chart(fig_heat, use_container_width=True)
+
+    if impacto_anom is not None and municipio in impacto_anom['territorio'].values:
+        imp = impacto_anom[impacto_anom['territorio'] == municipio].iloc[0]
+        st.markdown(f"**Lectura de impacto · {municipio}**")
+
+        n_anom = int(imp['n_meses_anomalos'])
+        st.markdown(
+            f"Este municipio presentó **{n_anom} meses anómalos** en 2025. "
+            f"En esos meses, sus variables se situaron por encima de lo normal para el mes. "
+            f"Si el patrón se mantuviera en 2026 (según la proyección del modelo), "
+            f"cabría esperar los siguientes niveles:"
+        )
+
+        NOMBRES_VAR = {'pernoctaciones': 'Pernoctaciones',
+                       'ingresos_totales': 'Ingresos',
+                       'viajeros_alojados': 'Viajeros'}
+        cols_imp = st.columns(3)
+        for col_widget, (var, nombre) in zip(cols_imp, NOMBRES_VAR.items()):
+            with col_widget:
+                base = imp.get(f'{var}_2025', None)
+                est = imp.get(f'{var}_2026_est', None)
+                pct = imp.get(f'{var}_subida_pct', None)
+                if pd.notna(est):
+                    st.metric(nombre, f"{est:,.0f}", f"{pct:+.1f}% vs 2025")
+        st.caption("Estimación condicional basada en el comportamiento observado en los meses "
+                   "anómalos de 2025 y la proyección de presión para 2026. No implica causalidad.")
     else:
-        st.info("Este municipio no tiene datos de anomalías (solo se calculan sobre 2025).")
-
-with col_rank:
-    st.markdown("**Municipios más anómalos en 2025**")
-    if 'anomalia' in historico.columns:
-        ranking_anom = (historico[historico['anomalia'] == True]
-                        .groupby('territorio').size()
-                        .sort_values(ascending=False).head(10))
-        if len(ranking_anom) > 0:
-            colores_rank = [CORAL if t == municipio else '#B0B0B0' for t in ranking_anom.index]
-            fig_ra = go.Figure(go.Bar(
-                x=ranking_anom.values, y=ranking_anom.index, orientation='h',
-                marker_color=colores_rank,
-            ))
-            fig_ra.update_layout(height=300, margin=dict(l=0, r=0, t=10, b=0),
-                                 xaxis_title="Meses anómalos")
-            fig_ra.update_yaxes(autorange="reversed")
-            st.plotly_chart(fig_ra, use_container_width=True)
-
-if info.get('tiene_anomalia', False):
-    st.warning(f"Anomalía detectada por el autoencoder: la presión de {municipio} "
-               f"se desvía de su patrón histórico en 2025.", icon="⚠️")
+        if info.get('tiene_anomalia', False):
+            st.info(f"{municipio} presenta anomalías en 2025, pero no hay estimación de impacto disponible.")
+        else:
+            st.success(f"{municipio} no presentó anomalías significativas en 2025.")
+else:
+    st.info("No hay datos de anomalías disponibles.")
