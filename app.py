@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import plotly.graph_objects as go
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
@@ -171,26 +172,38 @@ fig_ipv.add_trace(go.Scatter(x=serie['fecha'], y=serie['IPV'],
                              mode='lines', name='IPV histórico',
                              line=dict(color=AZUL, width=2)))
 
-if proyeccion is not None:
+if proyeccion is not None and len(serie) > 0:
     proy = proyeccion[proyeccion['territorio'] == municipio].sort_values('fecha')
-    fig_ipv.add_trace(go.Scatter(x=proy['fecha'], y=proy['IPV_sup'],
+
+    ancla_fecha = serie['fecha'].iloc[-1]
+    ancla_ipv = serie['IPV'].iloc[-1]
+
+    def con_ancla(fechas, valores):
+        return [ancla_fecha] + list(fechas), [ancla_ipv] + list(valores)
+
+    fx_sup, fy_sup = con_ancla(proy['fecha'], proy['IPV_sup'])
+    fx_inf, fy_inf = con_ancla(proy['fecha'], proy['IPV_inf'])
+    fig_ipv.add_trace(go.Scatter(x=fx_sup, y=fy_sup,
                                  mode='lines', line=dict(width=0),
                                  showlegend=False, hoverinfo='skip'))
-    fig_ipv.add_trace(go.Scatter(x=proy['fecha'], y=proy['IPV_inf'],
+    fig_ipv.add_trace(go.Scatter(x=fx_inf, y=fy_inf,
                                  mode='lines', line=dict(width=0),
                                  fill='tonexty', fillcolor='rgba(226,75,74,0.12)',
                                  name='Banda 80%', hoverinfo='skip'))
 
     if 'IPV_alcista' in proy.columns:
-        fig_ipv.add_trace(go.Scatter(x=proy['fecha'], y=proy['IPV_alcista'],
+        fx, fy = con_ancla(proy['fecha'], proy['IPV_alcista'])
+        fig_ipv.add_trace(go.Scatter(x=fx, y=fy,
                                      mode='lines', name='Escenario alcista',
                                      line=dict(color='#EF9F27', width=1.5, dash='dot')))
     if 'IPV_pesimista' in proy.columns:
-        fig_ipv.add_trace(go.Scatter(x=proy['fecha'], y=proy['IPV_pesimista'],
+        fx, fy = con_ancla(proy['fecha'], proy['IPV_pesimista'])
+        fig_ipv.add_trace(go.Scatter(x=fx, y=fy,
                                      mode='lines', name='Escenario pesimista',
                                      line=dict(color=VERDE, width=1.5, dash='dot')))
 
-    fig_ipv.add_trace(go.Scatter(x=proy['fecha'], y=proy['IPV_central'],
+    fx, fy = con_ancla(proy['fecha'], proy['IPV_central'])
+    fig_ipv.add_trace(go.Scatter(x=fx, y=fy,
                                  mode='lines', name='Proyección central 2026',
                                  line=dict(color=CORAL, width=2, dash='dash')))
 
@@ -325,10 +338,13 @@ with col_radar:
     media_cluster_ind = historico[historico['territorio'].isin(muni_cluster_ids)][list(PESOS_PCA)].mean()
 
     categorias = ['Intensidad (TIT)', 'Densidad (TDT)', 'Presión humana (IPH)']
-    valores_muni = [(ultimo[i] - historico[i].min()) / (historico[i].max() - historico[i].min() + 1e-9)
-                    for i in PESOS_PCA]
-    valores_cluster = [(media_cluster_ind[i] - historico[i].min()) / (historico[i].max() - historico[i].min() + 1e-9)
-                       for i in PESOS_PCA]
+    valores_por_muni = historico.groupby('territorio')[list(PESOS_PCA)].last()
+
+    def percentil(valor, ind):
+        return float((valores_por_muni[ind] < valor).mean())
+
+    valores_muni = [percentil(ultimo[i], i) for i in PESOS_PCA]
+    valores_cluster = [percentil(media_cluster_ind[i], i) for i in PESOS_PCA]
 
     fig_radar = go.Figure()
     fig_radar.add_trace(go.Scatterpolar(r=valores_muni + [valores_muni[0]],
@@ -343,6 +359,8 @@ with col_radar:
                             polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
                             showlegend=True)
     st.plotly_chart(fig_radar, use_container_width=True)
+    st.caption("Posición relativa (percentil) frente al resto de municipios: "
+               "1.0 = de los más altos, 0.0 = de los más bajos.")
 
 with col_estac:
     st.markdown("**Estacionalidad de la presión**")
