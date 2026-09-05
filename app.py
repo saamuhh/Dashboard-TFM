@@ -115,7 +115,8 @@ with f1c1:
                 f"<p style='color:{color};font-size:26px;font-weight:600;margin:0'>{info['alerta']}</p>",
                 unsafe_allow_html=True)
 with f1c2:
-    st.metric("IPV actual", f"{info['IPV_actual']:.2f}")
+    st.metric("IPV (dic 2025)", f"{info['IPV_actual']:.2f}",
+              help="Índice de Presión Vacacional en el último mes con datos disponibles (diciembre 2025).")
 with f1c3:
     st.metric("Posición", f"{posicion}º de 88")
 with f1c4:
@@ -136,32 +137,42 @@ if proy_muni is not None and len(proy_muni) > 0:
     incert = 'Alta' if amplitud > 2 else ('Media' if amplitud > 1 else 'Baja')
 
     with f2c1:
-        st.metric("Proyección 2026", f"{ipv_2026_medio:.2f}")
+        st.metric("Proyección 2026 (media)", f"{ipv_2026_medio:.2f}",
+                  help="IPV medio esperado para el conjunto de 2026, promediando los 12 meses proyectados.")
     with f2c2:
-        st.metric("Variación 25→26", f"{variacion:+.0f}%")
+        st.metric("Variación 25→26", f"{variacion:+.0f}%",
+                  help="Cambio del IPV medio proyectado para 2026 frente al valor de diciembre 2025.")
     with f2c3:
-        st.markdown(f"<p style='color:#888;font-size:13px;margin:0'>Mes de mayor presión</p>"
+        st.markdown(f"<p style='color:#888;font-size:13px;margin:0'>Mes pico en 2026</p>"
                     f"<p style='font-size:18px;font-weight:600;margin:0;text-transform:capitalize'>{mes_pico}</p>",
                     unsafe_allow_html=True)
+        st.caption("Mes de mayor presión previsto")
     with f2c4:
         color_i = {'Alta': '#E24B4A', 'Media': '#EF9F27', 'Baja': '#639922'}[incert]
         st.markdown(f"<p style='color:#888;font-size:13px;margin:0'>Incertidumbre</p>"
                     f"<p style='color:{color_i};font-size:18px;font-weight:600;margin:0'>{incert}</p>",
                     unsafe_allow_html=True)
+        st.caption("Ancho de la banda 80%")
 else:
     for c in [f2c1, f2c2, f2c3, f2c4]:
         c.caption("Sin proyección")
 
 with f2c5:
     tono = tono_municipio if tono_municipio is not None else info.get('tono', None)
+    query_news = municipio.replace(' ', '+') + '+turismo'
+    url_news = f"https://news.google.com/search?q={query_news}&hl=es"
     if pd.notna(tono):
         color_t = {'crítico': '#E24B4A', 'neutro': '#888', 'positivo': '#639922'}.get(tono, '#888')
         st.markdown(f"<p style='color:#888;font-size:13px;margin:0'>Tono mediático</p>"
                     f"<p style='color:{color_t};font-size:18px;font-weight:600;margin:0;text-transform:capitalize'>{tono}</p>",
                     unsafe_allow_html=True)
+        st.markdown(f"<a href='{url_news}' target='_blank' style='font-size:12px'>Ver noticias ↗</a>",
+                    unsafe_allow_html=True)
     else:
         st.markdown(f"<p style='color:#888;font-size:13px;margin:0'>Tono mediático</p>"
                     f"<p style='color:#bbb;font-size:14px;margin:0'>N/D</p>",
+                    unsafe_allow_html=True)
+        st.markdown(f"<a href='{url_news}' target='_blank' style='font-size:12px'>Ver noticias ↗</a>",
                     unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════
@@ -199,7 +210,7 @@ if proyeccion is not None and len(serie) > 0:
         fx, fy = con_ancla(proy['fecha'], proy['IPV_alcista'])
         fig_ipv.add_trace(go.Scatter(x=fx, y=fy,
                                      mode='lines', name='Escenario alcista',
-                                     line=dict(color='#EF9F27', width=1.5, dash='dot')))
+                                     line=dict(color=CORAL, width=1.5, dash='dot')))
     if 'IPV_pesimista' in proy.columns:
         fx, fy = con_ancla(proy['fecha'], proy['IPV_pesimista'])
         fig_ipv.add_trace(go.Scatter(x=fx, y=fy,
@@ -209,7 +220,7 @@ if proyeccion is not None and len(serie) > 0:
     fx, fy = con_ancla(proy['fecha'], proy['IPV_central'])
     fig_ipv.add_trace(go.Scatter(x=fx, y=fy,
                                  mode='lines', name='Proyección central 2026',
-                                 line=dict(color=CORAL, width=2, dash='dash')))
+                                 line=dict(color='#EF9F27', width=2, dash='dash')))
 
 fig_ipv.update_layout(height=380, margin=dict(l=0, r=0, t=10, b=0), yaxis_title="IPV")
 st.plotly_chart(fig_ipv, use_container_width=True)
