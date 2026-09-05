@@ -178,10 +178,20 @@ if proyeccion is not None:
                                  showlegend=False, hoverinfo='skip'))
     fig_ipv.add_trace(go.Scatter(x=proy['fecha'], y=proy['IPV_inf'],
                                  mode='lines', line=dict(width=0),
-                                 fill='tonexty', fillcolor='rgba(226,75,74,0.15)',
+                                 fill='tonexty', fillcolor='rgba(226,75,74,0.12)',
                                  name='Banda 80%', hoverinfo='skip'))
+
+    if 'IPV_alcista' in proy.columns:
+        fig_ipv.add_trace(go.Scatter(x=proy['fecha'], y=proy['IPV_alcista'],
+                                     mode='lines', name='Escenario alcista',
+                                     line=dict(color='#EF9F27', width=1.5, dash='dot')))
+    if 'IPV_pesimista' in proy.columns:
+        fig_ipv.add_trace(go.Scatter(x=proy['fecha'], y=proy['IPV_pesimista'],
+                                     mode='lines', name='Escenario pesimista',
+                                     line=dict(color=VERDE, width=1.5, dash='dot')))
+
     fig_ipv.add_trace(go.Scatter(x=proy['fecha'], y=proy['IPV_central'],
-                                 mode='lines', name='Proyección 2026',
+                                 mode='lines', name='Proyección central 2026',
                                  line=dict(color=CORAL, width=2, dash='dash')))
 
 fig_ipv.update_layout(height=380, margin=dict(l=0, r=0, t=10, b=0), yaxis_title="IPV")
