@@ -308,21 +308,41 @@ with col_b:
     if procedencia is not None and municipio in procedencia['territorio'].values:
         proc = (procedencia[procedencia['territorio'] == municipio]
                 .dropna(subset=['porcentaje']))
-        proc = proc[proc['porcentaje'] > 0].sort_values('porcentaje', ascending=False)
+        proc = proc[proc['porcentaje'] > 0].copy()
         if len(proc) > 0:
-            fig_proc = go.Figure(go.Treemap(
-                labels=proc['procedencia'],
-                parents=[""] * len(proc),
-                values=proc['porcentaje'],
-                texttemplate="<b>%{label}</b><br>%{value:.0f}%",
-                marker=dict(colors=proc['porcentaje'],
-                            colorscale=[[0, '#EAF3FB'], [0.5, AZUL], [1, '#1B4F7A']],
-                            showscale=False),
-                hovertemplate="%{label}: %{value:.1f}%<extra></extra>",
+            PAIS_ISO = {
+                'España': 'ESP', 'Alemania': 'DEU', 'Reino Unido': 'GBR', 'Francia': 'FRA',
+                'Italia': 'ITA', 'Países Bajos': 'NLD', 'Noruega': 'NOR', 'Suecia': 'SWE',
+                'Bélgica': 'BEL', 'Suiza': 'CHE', 'Irlanda': 'IRL', 'Dinamarca': 'DNK',
+                'Polonia': 'POL',
+            }
+            proc['iso'] = proc['procedencia'].map(PAIS_ISO)
+            proc = proc.dropna(subset=['iso'])
+
+            fig_mapa = go.Figure(go.Choropleth(
+                locations=proc['iso'],
+                locationmode='ISO-3',
+                z=proc['porcentaje'],
+                text=proc['procedencia'],
+                colorscale=[[0, '#EAF3FB'], [0.5, AZUL], [1, '#1B4F7A']],
+                colorbar=dict(title="%"),
+                hovertemplate="%{text}: %{z:.1f}%<extra></extra>",
             ))
-            fig_proc.update_layout(height=280, margin=dict(l=0, r=0, t=10, b=0))
-            st.plotly_chart(fig_proc, use_container_width=True)
-            st.caption("Reparto por país emisor · media 2024-2025 del grupo de pernoctaciones")
+            fig_mapa.update_geos(
+                scope='europe',
+                showcountries=True, countrycolor='#DDDDDD',
+                showland=True, landcolor='#F7F7F7',
+                showocean=True, oceancolor='#FFFFFF',
+                showframe=False,
+                projection_type='natural earth',
+                lataxis_range=[34, 72], lonaxis_range=[-25, 35],
+            )
+            fig_mapa.update_layout(height=320, margin=dict(l=0, r=0, t=10, b=0),
+                                   geo=dict(bgcolor='rgba(0,0,0,0)'))
+            st.plotly_chart(fig_mapa, use_container_width=True)
+            top_pais = proc.sort_values('porcentaje', ascending=False).iloc[0]
+            st.caption(f"Principal mercado emisor: {top_pais['procedencia']} "
+                       f"({top_pais['porcentaje']:.0f}%) · media 2024-2025")
         else:
             st.info("Sin datos de procedencia para este municipio.")
     else:
