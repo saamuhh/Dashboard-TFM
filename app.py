@@ -39,16 +39,20 @@ def cargar_datos():
         impacto_anom = pd.read_csv('dashboard_impacto_anomalias.csv')
     except FileNotFoundError:
         impacto_anom = None
+    try:
+        procedencia = pd.read_csv('dashboard_procedencia.csv')
+    except FileNotFoundError:
+        procedencia = None
 
     indicadores = ['TIT', 'TDT', 'IPH']
     escalador = StandardScaler().fit(historico[indicadores])
     pca = PCA(n_components=1).fit(escalador.transform(historico[indicadores]))
     pesos_pca = dict(zip(indicadores, pca.components_[0]))
 
-    return historico, resumen, proyeccion, pesos_pca, shap_muni, resumenes, enriquecido, impacto_anom
+    return historico, resumen, proyeccion, pesos_pca, shap_muni, resumenes, enriquecido, impacto_anom, procedencia
 
 
-historico, resumen, proyeccion, PESOS_PCA, shap_muni, resumenes, enriquecido, impacto_anom = cargar_datos()
+historico, resumen, proyeccion, PESOS_PCA, shap_muni, resumenes, enriquecido, impacto_anom, procedencia = cargar_datos()
 
 st.title("Cuadro de mando · Presión turística en Canarias")
 st.caption("Monitorización municipal · datos ISTAC 2021–2025 · proyección 2026")
@@ -289,16 +293,29 @@ for ind, (nombre, col) in GAUGE_CONFIG.items():
 col_b, col_shap = st.columns(2)
 
 with col_b:
-    st.markdown("**Origen de las pernoctaciones**")
-    hotel = serie['pernoctaciones'].sum()
-    vv = serie['pernoc_vv'].sum()
-    fig_orig = go.Figure(go.Bar(
-        x=['Hotelero', 'Vivienda vacacional'], y=[hotel, vv],
-        marker_color=[AZUL, CORAL],
-    ))
-    fig_orig.update_layout(height=280, margin=dict(l=0, r=0, t=10, b=0),
-                           yaxis_title="Pernoctaciones acumuladas")
-    st.plotly_chart(fig_orig, use_container_width=True)
+    st.markdown("**Procedencia del turismo**")
+    if procedencia is not None and municipio in procedencia['territorio'].values:
+        proc = (procedencia[procedencia['territorio'] == municipio]
+                .dropna(subset=['porcentaje']))
+        proc = proc[proc['porcentaje'] > 0].sort_values('porcentaje', ascending=False)
+        if len(proc) > 0:
+            fig_proc = go.Figure(go.Treemap(
+                labels=proc['procedencia'],
+                parents=[""] * len(proc),
+                values=proc['porcentaje'],
+                texttemplate="<b>%{label}</b><br>%{value:.0f}%",
+                marker=dict(colors=proc['porcentaje'],
+                            colorscale=[[0, '#EAF3FB'], [0.5, AZUL], [1, '#1B4F7A']],
+                            showscale=False),
+                hovertemplate="%{label}: %{value:.1f}%<extra></extra>",
+            ))
+            fig_proc.update_layout(height=280, margin=dict(l=0, r=0, t=10, b=0))
+            st.plotly_chart(fig_proc, use_container_width=True)
+            st.caption("Reparto por país emisor · media 2024-2025 del grupo de pernoctaciones")
+        else:
+            st.info("Sin datos de procedencia para este municipio.")
+    else:
+        st.info("Sin datos de procedencia para este municipio.")
 
 with col_shap:
     st.markdown("**Factores que explican la presión (SHAP)**")
