@@ -486,7 +486,7 @@ if 'error' in historico.columns and historico['error'].notna().any():
         st.markdown(
             f"Este municipio presentó **{n_anom} meses anómalos** en 2025. "
             f"En esos meses, sus variables se situaron por encima de lo normal para el mes. "
-            f"Si el patrón se mantuviera en 2026 (según la proyección del modelo), "
+            f"Si la anomalía se mantuviese en el total de 2026 (ver proyección del modelo), "
             f"cabría esperar los siguientes niveles:"
         )
 
