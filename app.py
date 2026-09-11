@@ -349,32 +349,49 @@ with col_b:
         st.info("Sin datos de procedencia para este municipio.")
 
 with col_shap:
-    st.markdown("**Factores que explican la presión (SHAP)**")
+    st.markdown("**¿Qué explica la presión turística de este municipio?**")
     if shap_muni is not None and municipio in shap_muni['territorio'].values:
         fila_shap = shap_muni[shap_muni['territorio'] == municipio].iloc[0]
-        factores, valores = [], []
-        for i in [1, 2, 3]:
-            if pd.notna(fila_shap.get(f'factor_{i}_sube')):
-                factores.append(fila_shap[f'factor_{i}_sube'])
-                valores.append(fila_shap[f'factor_{i}_sube_valor'])
-        for i in [1, 2, 3]:
-            if pd.notna(fila_shap.get(f'factor_{i}_baja')):
-                factores.append(fila_shap[f'factor_{i}_baja'])
-                valores.append(fila_shap[f'factor_{i}_baja_valor'])
 
-        orden = sorted(zip(factores, valores), key=lambda x: x[1])
-        factores_o = [f for f, _ in orden]
-        valores_o = [v for _, v in orden]
+        INTERPRETACIONES = {
+            'Inercia de la presión': 'La presión acumulada de meses anteriores arrastra el nivel actual.',
+            'Estacionalidad': 'El patrón estacional propio del municipio explica parte de la presión.',
+            'Tasa de reserva': 'El nivel de ocupación de las viviendas vacacionales influye significativamente.',
+            'Pernoctaciones': 'El volumen de noches de turistas alojados es un factor determinante.',
+            'Viajeros alojados': 'El número de visitantes que pernoctan contribuye a la presión.',
+            'Ingresos': 'El nivel de ingresos turísticos refleja la intensidad de la actividad.',
+            'Plazas disponibles': 'La oferta de plazas de alojamiento disponibles condiciona la presión.',
+            'Viviendas vacacionales': 'El parque de VV disponibles incide en la capacidad turística.',
+            'Envejecimiento': 'El perfil demográfico envejecido modera la presión relativa.',
+            'Densidad de población': 'La densidad de habitantes amplifica o amortigua el impacto turístico.',
+            'Población': 'El tamaño de la población residente relativiza la intensidad turística.',
+        }
 
-        fig_shap = go.Figure(go.Bar(
-            x=valores_o, y=factores_o, orientation='h',
-            marker_color=[CORAL if v > 0 else AZUL for v in valores_o],
-        ))
-        fig_shap.add_vline(x=0, line_color="#999")
-        fig_shap.update_layout(height=280, margin=dict(l=0, r=0, t=10, b=0),
-                               xaxis_title="Impacto en la predicción del TIT")
-        st.plotly_chart(fig_shap, use_container_width=True)
-        st.caption("Rojo: empuja la presión al alza · Azul: la modera")
+        filas_sube, filas_baja = [], []
+        for i in [1, 2, 3]:
+            f = fila_shap.get(f'factor_{i}_sube')
+            v = fila_shap.get(f'factor_{i}_sube_valor')
+            if pd.notna(f):
+                filas_sube.append({'Factor': f,
+                                   'Efecto': '🔺 Aumenta la presión',
+                                   'Interpretación': INTERPRETACIONES.get(f, 'Contribuye al nivel de presión.')})
+        for i in [1, 2, 3]:
+            f = fila_shap.get(f'factor_{i}_baja')
+            v = fila_shap.get(f'factor_{i}_baja_valor')
+            if pd.notna(f):
+                filas_baja.append({'Factor': f,
+                                   'Efecto': '🔻 Modera la presión',
+                                   'Interpretación': INTERPRETACIONES.get(f, 'Contribuye a moderar el nivel de presión.')})
+
+        df_shap = pd.DataFrame(filas_sube + filas_baja)
+        if len(df_shap) > 0:
+            st.dataframe(df_shap, use_container_width=True, hide_index=True,
+                         column_config={
+                             'Factor': st.column_config.TextColumn('Factor', width='medium'),
+                             'Efecto': st.column_config.TextColumn('Efecto', width='medium'),
+                             'Interpretación': st.column_config.TextColumn('Interpretación', width='large'),
+                         })
+            st.caption("Factores que más influyeron en la predicción del TIT · último mes de test (2025)")
     else:
         st.info("Sin datos SHAP disponibles para este municipio.")
 
@@ -486,7 +503,7 @@ if 'error' in historico.columns and historico['error'].notna().any():
         st.markdown(
             f"Este municipio presentó **{n_anom} meses anómalos** en 2025. "
             f"En esos meses, sus variables se situaron por encima de lo normal para el mes. "
-            f"Si la anomalía se mantuviese en el total de 2026 (ver proyección del modelo), "
+            f"Si el patrón se mantuviera en 2026 (según la proyección del modelo), "
             f"cabría esperar los siguientes niveles:"
         )
 
@@ -502,7 +519,7 @@ if 'error' in historico.columns and historico['error'].notna().any():
                 if pd.notna(est):
                     st.metric(nombre, f"{est:,.0f}", f"{pct:+.1f}% vs 2025")
         st.caption("Estimación condicional basada en el comportamiento observado en los meses "
-                   "anómalos de 2025 y un escenario pesimista de masificación para la proyección de presión vacacional en 2026. No implica causalidad")
+                   "anómalos de 2025 y la proyección de presión para 2026. No implica causalidad.")
     else:
         if info.get('tiene_anomalia', False):
             st.info(f"{municipio} presenta anomalías en 2025, pero no hay estimación de impacto disponible.")
