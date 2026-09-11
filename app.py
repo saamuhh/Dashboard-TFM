@@ -502,7 +502,7 @@ if 'error' in historico.columns and historico['error'].notna().any():
                 if pd.notna(est):
                     st.metric(nombre, f"{est:,.0f}", f"{pct:+.1f}% vs 2025")
         st.caption("Estimación condicional basada en el comportamiento observado en los meses "
-                   "anómalos de 2025 y la proyección de presión para 2026. No implica causalidad.")
+                   "anómalos de 2025 y un escenario pesimista de masificación para la proyección de presión vacacional en 2026. No implica causalidad")
     else:
         if info.get('tiene_anomalia', False):
             st.info(f"{municipio} presenta anomalías en 2025, pero no hay estimación de impacto disponible.")
